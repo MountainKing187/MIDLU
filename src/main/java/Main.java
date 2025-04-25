@@ -1,4 +1,3 @@
-package org.example;
 
 import java.util.Scanner;
 import java.io.BufferedReader;
@@ -7,16 +6,18 @@ import java.io.IOException;
 
 public class Main {
     static Scanner sc = new Scanner(System.in);
-
     public static void main(String[] args) {
         menu();
     }
 
 
     public static void menu() {
+        System.out.println("Ingrese su ubicacion actual");
+
+        mostrarMenu();
         String option = sc.next();
         if(isInt(sc.next())){
-            ejecutarOpcion(stringtoint(option));
+            ejecutarOpcion(stringToint(option));
         }else {
             System.out.println("Numero no valido");
             menu();
@@ -25,8 +26,9 @@ public class Main {
 
     public static void mostrarMenu() {
         System.out.println("Menu Principal");
-        System.out.println("1- Suma");
-        System.out.println("6- Salir");
+        System.out.println("1- Actualizar Ubicacion");
+        System.out.println("2- Buscar Sala");
+        System.out.println("3- Salir");
         System.out.println("Selecciona una opcion:");
     }
 
@@ -37,12 +39,6 @@ public class Main {
             case 2:
                 break;
             case 3:
-                break;
-            case 4:
-                break;
-            case 5:
-                break;
-            case 6:
                 System.exit(69);
                 break;
             default:
@@ -51,7 +47,7 @@ public class Main {
         }
     }
 
-    public static int stringtoint(String number){
+    public static int stringToint(String number){
         int num = 0;
         if(isInt(number)){
             num = Integer.parseInt(number);
