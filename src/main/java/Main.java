@@ -28,7 +28,8 @@ public class Main {
         System.out.println("Menu Principal");
         System.out.println("1- Actualizar Ubicacion");
         System.out.println("2- Buscar Sala");
-        System.out.println("3- Salir");
+        System.out.println("3- Listado");
+        System.out.println("4- Salir");
         System.out.println("Selecciona una opcion:");
     }
 
@@ -39,6 +40,8 @@ public class Main {
             case 2:
                 break;
             case 3:
+                break;
+            case 4:
                 System.exit(69);
                 break;
             default:
