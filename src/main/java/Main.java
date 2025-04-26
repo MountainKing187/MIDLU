@@ -8,6 +8,7 @@ public class Main {
 
 
     public static void main(String[] args) {
+
         menu();
     }
 
@@ -23,29 +24,21 @@ public class Main {
 
     private static void mostrarMenu() {
         System.out.println("Menu Principal");
-        System.out.println("1- Actualizar Ubicacion");
-        System.out.println("2- Buscar Sala");
-        System.out.println("3- Listado");
+        System.out.println("1- Actualizar sus Coordenadas");
+        System.out.println("2- Buscar Edificio por coordenadas");
+        System.out.println("3- Ubicar Sala");
         System.out.println("4- Salir");
+        System.out.println("Sus coordenadas son: X="+coordUsr[0]+", Y="+coordUsr[1]);
         System.out.println("Selecciona una opcion:");
     }
 
     private static void ejecutarOpcion(int opcion) {
         switch(opcion){
-            case 1:
-                System.out.println("sadsda");
-                break;
-            case 2:
-                System.out.println("dasgg2");
-                break;
-            case 3:
-                System.out.println("2234dsa");
-                break;
-            case 4:
-                System.out.println("Adios");
-                break;
-            default:
-                System.out.println("Opcion invalida");
+            case 1 -> actualizarCoordUsr();
+            case 2 -> System.out.println("dasgg2");
+            case 3 -> System.out.println("2234dsa");
+            case 4 -> System.out.println("Adios");
+            default -> System.out.println("Opcion invalida");
         }
     }
 
@@ -58,6 +51,16 @@ public class Main {
         int coordY= stringToint(sc.next());
         System.out.println("Y: " + coordY);
 
+        coordUsr = new int[] {coordX, coordY};
+    }
+
+    public static double anguloEntrePuntos(int[] punto1, int[] punto2){
+        int[] cero = new int[2];
+        int[] distanciaEjes = new int[2];
+        for (int i = 0; i < 3; i++) {
+            distanciaEjes[i] = punto2[i] - punto1[i];
+        }
+        return Math.atan((double) distanciaEjes[1] /distanciaEjes[0]);
     }
 
     private static int stringToint(String number){
