@@ -8,7 +8,6 @@ public class Main {
 
 
     public static void main(String[] args) {
-
         menu();
     }
 
@@ -55,12 +54,14 @@ public class Main {
     }
 
     public static double anguloEntrePuntos(int[] punto1, int[] punto2){
-        int[] cero = new int[2];
         int[] distanciaEjes = new int[2];
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             distanciaEjes[i] = punto2[i] - punto1[i];
+            System.out.println(distanciaEjes[i]);
         }
-        return Math.atan((double) distanciaEjes[1] /distanciaEjes[0]);
+        double anguloRadianes = Math.atan((double) distanciaEjes[1] / distanciaEjes[0]);
+        double anguloGrados = Math.toDegrees(anguloRadianes);
+        return Math.round(anguloGrados * 100.0) / 100.0;
     }
 
     private static int stringToint(String number){
