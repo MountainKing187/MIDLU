@@ -1,7 +1,10 @@
 import java.util.Scanner;
 
 public class Main {
-    static Scanner sc = new Scanner(System.in);
+    private static final Scanner sc = new Scanner(System.in);
+    private static final int[] coordRa = {5,10};
+    private static final int[] coordE = {2,6};
+    private static int[] coordUsr = new int[2];
 
 
     public static void main(String[] args) {
@@ -18,7 +21,7 @@ public class Main {
         }while(option != 4);
     }
 
-    public static void mostrarMenu() {
+    private static void mostrarMenu() {
         System.out.println("Menu Principal");
         System.out.println("1- Actualizar Ubicacion");
         System.out.println("2- Buscar Sala");
@@ -27,7 +30,7 @@ public class Main {
         System.out.println("Selecciona una opcion:");
     }
 
-    public static void ejecutarOpcion(int opcion) {
+    private static void ejecutarOpcion(int opcion) {
         switch(opcion){
             case 1:
                 System.out.println("sadsda");
@@ -46,7 +49,18 @@ public class Main {
         }
     }
 
-    public static int stringToint(String number){
+    private static void actualizarCoordUsr(){
+        System.out.println("Ingrese sus coordenadas en X: ");
+        int coordX = stringToint(sc.next());
+        System.out.println("X: " + coordX);
+
+        System.out.println("Ingrese sus coordenadas en Y: ");
+        int coordY= stringToint(sc.next());
+        System.out.println("Y: " + coordY);
+
+    }
+
+    private static int stringToint(String number){
         int num = 0;
 
         if(isInt(number)){
@@ -58,7 +72,7 @@ public class Main {
         return num;
     }
 
-    public static boolean isInt(String number){
+    private static boolean isInt(String number){
         try {
             Integer.parseInt(number);
             return true;
