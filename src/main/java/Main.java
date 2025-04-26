@@ -1,4 +1,6 @@
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -6,22 +8,20 @@ import java.io.IOException;
 
 public class Main {
     static Scanner sc = new Scanner(System.in);
+
+
     public static void main(String[] args) {
         menu();
     }
 
-
     public static void menu() {
-        System.out.println("Ingrese su ubicacion actual");
+        int option;
 
-        mostrarMenu();
-        String option = sc.next();
-        if(isInt(sc.next())){
-            ejecutarOpcion(stringToint(option));
-        }else {
-            System.out.println("Numero no valido");
-            menu();
-        }
+        do {
+            mostrarMenu();
+            option = stringToint(sc.next());
+            ejecutarOpcion(option);
+        }while(option != 4);
     }
 
     public static void mostrarMenu() {
@@ -36,27 +36,31 @@ public class Main {
     public static void ejecutarOpcion(int opcion) {
         switch(opcion){
             case 1:
+                System.out.println("sadsda");
                 break;
             case 2:
+                System.out.println("dasgg2");
                 break;
             case 3:
+                System.out.println("2234dsa");
                 break;
             case 4:
-                System.exit(69);
+                System.out.println("Adios");
                 break;
             default:
                 System.out.println("Opcion invalida");
-                menu();
         }
     }
 
     public static int stringToint(String number){
         int num = 0;
+
         if(isInt(number)){
             num = Integer.parseInt(number);
         }else {
-            System.out.println("Numero Invalido");
+            System.out.println("Argumento Invalido");
         }
+
         return num;
     }
 
