@@ -53,15 +53,25 @@ public class Main {
         coordUsr = new int[] {coordX, coordY};
     }
 
-    public static double anguloEntrePuntos(int[] punto1, int[] punto2){
+    public static int[] tamanoEjes(int[] punto1, int[] punto2){
         int[] distanciaEjes = new int[2];
         for (int i = 0; i < 2; i++) {
             distanciaEjes[i] = punto2[i] - punto1[i];
-            System.out.println(distanciaEjes[i]);
         }
+        return distanciaEjes;
+    }
+
+    public static double anguloEntrePuntos(int[] punto1, int[] punto2){
+        int[] distanciaEjes = tamanoEjes(punto1,punto2);
+
         double anguloRadianes = Math.atan((double) distanciaEjes[1] / distanciaEjes[0]);
         double anguloGrados = Math.toDegrees(anguloRadianes);
         return Math.round(anguloGrados * 100.0) / 100.0;
+    }
+
+    public static double distanciaEntreDosPuntos(int[] punto1, int[] punto2){
+        int[] distanciaEjes = tamanoEjes(punto1,punto2);
+        return Math.sqrt(distanciaEjes[0] + distanciaEjes[1]);
     }
 
     private static int stringToint(String number){
