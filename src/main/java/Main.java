@@ -2,12 +2,13 @@ import java.util.Scanner;
 
 public class Main {
     private static final Scanner sc = new Scanner(System.in);
-    private static final int[] coordRa = {5,10};
-    private static final int[] coordE = {2,6};
-    private static int[] coordUsr = new int[2];
+    private static final double[] coordRa = {5,10};
+    private static final double[] coordE = {2,6};
+    private static double[] coordUsr = new double[2];
 
 
     public static void main(String[] args) {
+        inicioPrograma();
         menu();
     }
 
@@ -21,6 +22,10 @@ public class Main {
         }while(option != 4);
     }
 
+    private static void inicioPrograma(){
+        System.out.println("Bienvenido, ingrese sus coordenadas actuales");
+        actualizarCoordUsr();
+    }
     private static void mostrarMenu() {
         System.out.println("Menu Principal");
         System.out.println("1- Actualizar sus Coordenadas");
@@ -50,7 +55,7 @@ public class Main {
         int coordY= stringToint(sc.next());
         System.out.println("Y: " + coordY);
 
-        coordUsr = new int[] {coordX, coordY};
+        coordUsr = new double[] {coordX, coordY};
     }
 
     public static void buscarEdificio() {
@@ -62,8 +67,8 @@ public class Main {
             return;
         }
 
-        int[] coordenadasEdificio = obtenerCoordenadasEdificio(opcion);
-        int[] diferenciaCoordenadas = calcularDiferenciaCoordenadas(coordUsr, coordenadasEdificio);
+        double[] coordenadasEdificio = obtenerCoordenadasEdificio(opcion);
+        double[] diferenciaCoordenadas = calcularDiferenciaCoordenadas(coordUsr, coordenadasEdificio);
 
         mostrarDireccionRelativa(diferenciaCoordenadas);
         mostrarDistancia(diferenciaCoordenadas);
@@ -84,21 +89,21 @@ public class Main {
         return opcion == 1 || opcion == 2;
     }
 
-    private static int[] obtenerCoordenadasEdificio(int opcion) {
+    private static double[] obtenerCoordenadasEdificio(int opcion) {
         return opcion == 1 ? coordRa : coordE;
     }
 
-    private static int[] calcularDiferenciaCoordenadas(int[] origen, int[] destino) {
+    private static double[] calcularDiferenciaCoordenadas(double[] origen, double[] destino) {
         return tamanoEjes(origen, destino);
     }
 
-    private static void mostrarDireccionRelativa(int[] diferenciaCoordenadas) {
+    private static void mostrarDireccionRelativa(double[] diferenciaCoordenadas) {
         double angulo = anguloEntrePuntos(diferenciaCoordenadas);
         String direccion = determinarDireccion(angulo, diferenciaCoordenadas);
         System.out.println(direccion);
     }
 
-    private static String determinarDireccion(double angulo, int[] diferenciaCoordenadas) {
+    private static String determinarDireccion(double angulo, double[] diferenciaCoordenadas) {
         if (angulo == 90.0) return "El edificio está al norte de usted";
         if (angulo == 0.0 && diferenciaCoordenadas[0] < 0) return "El edificio está al oeste de usted";
         if (angulo == -90.0) return "El edificio está al sur de usted";
@@ -111,33 +116,33 @@ public class Main {
                 puntoCardinal, anguloMostrar);
     }
 
-    private static String obtenerPuntoCardinal(double angulo, int[] diferenciaCoordenadas) {
+    private static String obtenerPuntoCardinal(double angulo, double[] diferenciaCoordenadas) {
         if (angulo < 90.0 && angulo > 0) {
             return diferenciaCoordenadas[1] < 0 ? "suroeste" : "noreste";
         }
         return diferenciaCoordenadas[1] < 0 ? "sureste" : "noroeste";
     }
 
-    private static void mostrarDistancia(int[] diferenciaCoordenadas) {
+    private static void mostrarDistancia(double[] diferenciaCoordenadas) {
         double distancia = distanciaEntreDosPuntos(diferenciaCoordenadas);
         System.out.printf("A una distancia de %.2f unidades%n", distancia);
     }
 
-    public static int[] tamanoEjes(int[] punto1, int[] punto2){
-        int[] distanciaEjes = new int[2];
+    public static double[] tamanoEjes(double[] punto1, double[] punto2){
+        double[] distanciaEjes = new double[2];
         for (int i = 0; i < 2; i++) {
             distanciaEjes[i] = punto2[i] - punto1[i];
         }
         return distanciaEjes;
     }
 
-    public static double anguloEntrePuntos(int[] distanciaEjes){
+    public static double anguloEntrePuntos(double[] distanciaEjes){
         double anguloRadianes = Math.atan((double) distanciaEjes[1] / distanciaEjes[0]);
         double anguloGrados = Math.toDegrees(anguloRadianes);
         return Math.round(anguloGrados * 100.0) / 100.0;
     }
 
-    public static double distanciaEntreDosPuntos(int[] distanciaEjes){
+    public static double distanciaEntreDosPuntos(double[] distanciaEjes){
         double distancia = Math.sqrt(distanciaEjes[0] + distanciaEjes[1]);
         return Math.round(distancia * 100.0) / 100.0;
     }
