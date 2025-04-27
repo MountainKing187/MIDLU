@@ -53,33 +53,74 @@ public class Main {
         coordUsr = new int[] {coordX, coordY};
     }
 
-    public static void buscarEdificio(){
-        System.out.println("Edificios disponibles: ");
-        System.out.println("1- Pabellon Ra");
-        System.out.println("2- Pabellon E");
-        System.out.println("Selecciona una opcion:");
-        int option = stringToint(sc.next());
-        int[] coordEdifBuscado = new int[2];
+    public static void buscarEdificio() {
+        mostrarOpcionesEdificios();
+        int opcion = obtenerOpcionUsuario();
 
-        switch (option){
-            case 1 -> coordEdifBuscado = coordRa;
-            case 2 -> coordEdifBuscado = coordE;
-            default -> System.out.println("Opcion invalida");
+        if (!opcionValida(opcion)) {
+            System.out.println("Opción inválida");
+            return;
         }
-        int[] distanciaEjes = tamanoEjes(coordUsr,coordEdifBuscado);
-        double angulo = anguloEntrePuntos(distanciaEjes);
-        double distancia = distanciaEntreDosPuntos(distanciaEjes);
 
-        if (angulo == 90.0) System.out.println("El edificio esta al norte de usted");
-        else if (angulo == 0.0 && distanciaEjes[0] < 0) System.out.println("El edificio esta al oeste de usted");
-        else if (angulo == -90.0) System.out.println("El edificio esta al sur de usted");
-        else if (angulo == 0.0) System.out.println("El edificio esta al este de usted");
-        else if (angulo < 90.0 && angulo > 0 && distanciaEjes[1] < 0 ) System.out.println("El edificio esta al suroeste de usted con un angulo de "+angulo+"°.");
-        else if (angulo < 90.0 && angulo > 0) System.out.println("El edificio esta al noreste de usted con un angulo de "+angulo+"°.");
-        else if (angulo > -90.0 && angulo < 0 && distanciaEjes[1] < 0) System.out.println("El edificio esta al sureste de usted con un angulo de "+Math.abs(angulo)+"°.");
-        else if (angulo > -90.0 && angulo < 0 ) System.out.println("El edificio esta al noroeste de usted con un angulo de "+Math.abs(angulo)+"°.");
+        int[] coordenadasEdificio = obtenerCoordenadasEdificio(opcion);
+        int[] diferenciaCoordenadas = calcularDiferenciaCoordenadas(coordUsr, coordenadasEdificio);
 
-        System.out.println("A una distancia de "+distancia+" unidades");
+        mostrarDireccionRelativa(diferenciaCoordenadas);
+        mostrarDistancia(diferenciaCoordenadas);
+    }
+
+    private static void mostrarOpcionesEdificios() {
+        System.out.println("Edificios disponibles: ");
+        System.out.println("1- Pabellón Ra");
+        System.out.println("2- Pabellón E");
+        System.out.println("Selecciona una opción:");
+    }
+
+    private static int obtenerOpcionUsuario() {
+        return stringToint(sc.next());
+    }
+
+    private static boolean opcionValida(int opcion) {
+        return opcion == 1 || opcion == 2;
+    }
+
+    private static int[] obtenerCoordenadasEdificio(int opcion) {
+        return opcion == 1 ? coordRa : coordE;
+    }
+
+    private static int[] calcularDiferenciaCoordenadas(int[] origen, int[] destino) {
+        return tamanoEjes(origen, destino);
+    }
+
+    private static void mostrarDireccionRelativa(int[] diferenciaCoordenadas) {
+        double angulo = anguloEntrePuntos(diferenciaCoordenadas);
+        String direccion = determinarDireccion(angulo, diferenciaCoordenadas);
+        System.out.println(direccion);
+    }
+
+    private static String determinarDireccion(double angulo, int[] diferenciaCoordenadas) {
+        if (angulo == 90.0) return "El edificio está al norte de usted";
+        if (angulo == 0.0 && diferenciaCoordenadas[0] < 0) return "El edificio está al oeste de usted";
+        if (angulo == -90.0) return "El edificio está al sur de usted";
+        if (angulo == 0.0) return "El edificio está al este de usted";
+
+        String puntoCardinal = obtenerPuntoCardinal(angulo, diferenciaCoordenadas);
+        double anguloMostrar = angulo > 0 ? angulo : Math.abs(angulo);
+
+        return String.format("El edificio está al %s de usted con un ángulo de %.1f°",
+                puntoCardinal, anguloMostrar);
+    }
+
+    private static String obtenerPuntoCardinal(double angulo, int[] diferenciaCoordenadas) {
+        if (angulo < 90.0 && angulo > 0) {
+            return diferenciaCoordenadas[1] < 0 ? "suroeste" : "noreste";
+        }
+        return diferenciaCoordenadas[1] < 0 ? "sureste" : "noroeste";
+    }
+
+    private static void mostrarDistancia(int[] diferenciaCoordenadas) {
+        double distancia = distanciaEntreDosPuntos(diferenciaCoordenadas);
+        System.out.printf("A una distancia de %.2f unidades%n", distancia);
     }
 
     public static int[] tamanoEjes(int[] punto1, int[] punto2){
