@@ -123,7 +123,6 @@ public class Main {
 
         if (!opcionValida(opcion)) {
             System.out.println("Opción inválida");
-            return;
         }else{
             direccionesaEdificio(opcion-1);
         }
@@ -212,7 +211,7 @@ public class Main {
     }
 
     public static double anguloEntrePuntos(double[] distanciaEjes){
-        double anguloRadianes = Math.atan((double) distanciaEjes[1] / distanciaEjes[0]);
+        double anguloRadianes = Math.atan(distanciaEjes[1] / distanciaEjes[0]);
         double anguloGrados = Math.toDegrees(anguloRadianes);
         return Math.round(anguloGrados * 100.0) / 100.0;
     }
