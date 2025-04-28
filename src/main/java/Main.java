@@ -1,4 +1,9 @@
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Main {
     private static final Scanner sc = new Scanner(System.in);
@@ -6,6 +11,9 @@ public class Main {
     private static final double[] coordE = {2,6};
     private static double[] coordUsr = new double[2];
 
+//  Listas para arreglar los array de edificios y salas
+    private static final ArrayList<String[]>edificios = new ArrayList<>();
+    private static final ArrayList<String[]>listadeSalas = new ArrayList<>();
 
     public static void main(String[] args) {
         inicioPrograma();
@@ -22,10 +30,61 @@ public class Main {
         }while(option != 4);
     }
 
+//  Se ingresa la ubicación inicial ya que se asume que el programa usara GPS para esto
     private static void inicioPrograma(){
+        cargarData(Objects.requireNonNull(leerData()));
         System.out.println("Bienvenido, ingrese sus coordenadas actuales");
         actualizarCoordUsr();
     }
+
+    private static JSONArray leerData(){
+        String nombrearchivo ="src/main/data.json";
+        try (BufferedReader br = new BufferedReader(new FileReader(nombrearchivo))) {
+            StringBuilder contenido = new StringBuilder();
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                contenido.append(linea);
+            }
+
+            JSONObject jsonObject = new JSONObject(contenido.toString());
+            return jsonObject.getJSONArray("edificios");
+
+        } catch (IOException e) {
+            System.out.println("Error al leer Base de Datos");
+            return null;
+        }
+    }
+
+//  Este metodo lee el archivo JSON y agrega la data a 2 ArrayList<String[]>
+//  uno para los edificios y otro para las salas.
+//  Utiliza 3 funciones, cargarData, leerData y cargarSalas
+    private static void cargarData(JSONArray jsarray){
+        for (int i = 0; i < jsarray.length(); i++) {
+            JSONObject edificioObj = jsarray.getJSONObject(i);
+
+            String edificio = edificioObj.getString("nombre");
+            JSONArray ubicacionArray = edificioObj.getJSONArray("ubicacion");
+            String ubicacionX = String.valueOf(ubicacionArray.getDouble(0));
+            String ubicacionY = String.valueOf(ubicacionArray.getDouble(1));
+
+            String[] datosEdificio = {edificio, ubicacionX, ubicacionY};
+            edificios.add(datosEdificio);
+            cargarSalas(edificioObj.getJSONArray("salas"),edificio, ubicacionX, ubicacionY);
+        }
+    }
+
+    private static void cargarSalas(JSONArray jsarray, String edificio, String ubicacionX,String ubicacionY){
+        for (Object obj : jsarray) {
+            JSONObject salaObj = (JSONObject) obj;
+
+            String sala = salaObj.getString("nombre");
+            String piso = String.valueOf(salaObj.getInt("piso"));
+
+            String[] datosSala = {sala, piso, edificio, ubicacionX, ubicacionY};
+            listadeSalas.add(datosSala);
+        }
+    }
+
     private static void mostrarMenu() {
         System.out.println("Menu Principal");
         System.out.println("1- Actualizar sus Coordenadas");
@@ -67,17 +126,28 @@ public class Main {
             return;
         }
 
+        String edificio = nombreEdificio(opcion);
         double[] coordenadasEdificio = obtenerCoordenadasEdificio(opcion);
         double[] diferenciaCoordenadas = calcularDiferenciaCoordenadas(coordUsr, coordenadasEdificio);
 
-        mostrarDireccionRelativa(diferenciaCoordenadas);
+        mostrarDireccionRelativa(diferenciaCoordenadas, edificio);
         mostrarDistancia(diferenciaCoordenadas);
+    }
+
+    private static String nombreEdificio(int opcion){
+        String[] edificioSelectionado = edificios.get(opcion - 1);
+        return edificioSelectionado[0];
     }
 
     private static void mostrarOpcionesEdificios() {
         System.out.println("Edificios disponibles: ");
-        System.out.println("1- Pabellón Ra");
-        System.out.println("2- Pabellón E");
+
+        for (int i = 0; i < edificios.size(); i++) {
+            String[] sala = edificios.get(i);
+            if (sala.length > 0) {
+                System.out.println((i + 1) + "- " + sala[0]);
+            }
+        }
         System.out.println("Selecciona una opción:");
     }
 
@@ -90,29 +160,30 @@ public class Main {
     }
 
     private static double[] obtenerCoordenadasEdificio(int opcion) {
-        return opcion == 1 ? coordRa : coordE;
+        String[] coordenadas = edificios.get(opcion-1);
+        return new double[]{Double.parseDouble(coordenadas[1]), Double.parseDouble(coordenadas[1])};
     }
 
     private static double[] calcularDiferenciaCoordenadas(double[] origen, double[] destino) {
         return tamanoEjes(origen, destino);
     }
 
-    private static void mostrarDireccionRelativa(double[] diferenciaCoordenadas) {
+    private static void mostrarDireccionRelativa(double[] diferenciaCoordenadas, String edificio) {
         double angulo = anguloEntrePuntos(diferenciaCoordenadas);
-        String direccion = determinarDireccion(angulo, diferenciaCoordenadas);
+        String direccion = determinarDireccion(angulo, diferenciaCoordenadas, edificio);
         System.out.println(direccion);
     }
 
-    private static String determinarDireccion(double angulo, double[] diferenciaCoordenadas) {
-        if (angulo == 90.0) return "El edificio está al norte de usted";
-        if (angulo == 0.0 && diferenciaCoordenadas[0] < 0) return "El edificio está al oeste de usted";
-        if (angulo == -90.0) return "El edificio está al sur de usted";
-        if (angulo == 0.0) return "El edificio está al este de usted";
+    private static String determinarDireccion(double angulo, double[] diferenciaCoordenadas, String edificio) {
+        if (angulo == 90.0) return "El "+ edificio +" está al norte de usted";
+        if (angulo == 0.0 && diferenciaCoordenadas[0] < 0) return "El "+ edificio +" está al oeste de usted";
+        if (angulo == -90.0) return "El "+ edificio +" está al sur de usted";
+        if (angulo == 0.0) return "El "+ edificio +" está al este de usted";
 
         String puntoCardinal = obtenerPuntoCardinal(angulo, diferenciaCoordenadas);
         double anguloMostrar = angulo > 0 ? angulo : Math.abs(angulo);
 
-        return String.format("El edificio está al %s de usted con un ángulo de %.1f°",
+        return String.format("El "+ edificio +" está al %s de usted con un ángulo de %.1f°",
                 puntoCardinal, anguloMostrar);
     }
 
