@@ -268,6 +268,7 @@ public class Main {
         }
         else{
             System.out.println("Sala no encontrada.");
+            System.out.println("Utiliza el formato que hay en intranet.");
             buscadordeSalas();
         }
     }
