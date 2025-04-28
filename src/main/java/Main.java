@@ -7,12 +7,12 @@ import org.json.JSONObject;
 
 public class Main {
     private static final Scanner sc = new Scanner(System.in);
-    private static final double[] coordRa = {5,10};
-    private static final double[] coordE = {2,6};
     private static double[] coordUsr = new double[2];
 
 //  Listas para arreglar los array de edificios y salas
+    // el array edificos esta en orden {edificio, ubicacionX, ubicacionY}
     private static final ArrayList<String[]>edificios = new ArrayList<>();
+    //el array lista de salas esta en orden {sala, piso, edificio, ubicacionX, ubicacionY}
     private static final ArrayList<String[]>listadeSalas = new ArrayList<>();
 
     public static void main(String[] args) {
@@ -99,7 +99,7 @@ public class Main {
         switch(opcion){
             case 1 -> actualizarCoordUsr();
             case 2 -> buscarEdificio();
-            case 3 -> System.out.println("2234dsa");
+            case 3 -> buscadordeSalas();
             case 4 -> System.out.println("Adios");
             default -> System.out.println("Opcion invalida");
         }
@@ -124,19 +124,9 @@ public class Main {
         if (!opcionValida(opcion)) {
             System.out.println("Opción inválida");
             return;
+        }else{
+            direccionesaEdificio(opcion-1);
         }
-
-        String edificio = nombreEdificio(opcion);
-        double[] coordenadasEdificio = obtenerCoordenadasEdificio(opcion);
-        double[] diferenciaCoordenadas = calcularDiferenciaCoordenadas(coordUsr, coordenadasEdificio);
-
-        mostrarDireccionRelativa(diferenciaCoordenadas, edificio);
-        mostrarDistancia(diferenciaCoordenadas);
-    }
-
-    private static String nombreEdificio(int opcion){
-        String[] edificioSelectionado = edificios.get(opcion - 1);
-        return edificioSelectionado[0];
     }
 
     private static void mostrarOpcionesEdificios() {
@@ -151,16 +141,30 @@ public class Main {
         System.out.println("Selecciona una opción:");
     }
 
+    private static void direccionesaEdificio(int opcion){
+        String edificio = nombreEdificio(opcion);
+        double[] coordenadasEdificio = obtenerCoordenadasEdificio(opcion);
+        double[] diferenciaCoordenadas = calcularDiferenciaCoordenadas(coordUsr, coordenadasEdificio);
+
+        mostrarDireccionRelativa(diferenciaCoordenadas, edificio);
+        mostrarDistancia(diferenciaCoordenadas);
+    }
+
+    private static String nombreEdificio(int opcion){
+        String[] edificioSelectionado = edificios.get(opcion);
+        return edificioSelectionado[0];
+    }
+
     private static int obtenerOpcionUsuario() {
         return stringToint(sc.next());
     }
 
     private static boolean opcionValida(int opcion) {
-        return opcion == 1 || opcion == 2;
+        return opcion >= 1 && opcion <= edificios.size();
     }
 
     private static double[] obtenerCoordenadasEdificio(int opcion) {
-        String[] coordenadas = edificios.get(opcion-1);
+        String[] coordenadas = edificios.get(opcion);
         return new double[]{Double.parseDouble(coordenadas[1]), Double.parseDouble(coordenadas[1])};
     }
 
@@ -238,4 +242,46 @@ public class Main {
             return false;
         }
     }
+
+// Funciones para Buscar la Sala
+    private static void buscadordeSalas(){
+        String nombre = nombreSala();
+        if(Objects.equals(nombre, "1"))menu();
+        int ubicacionenarray = ubicacionenArray(listadeSalas,nombre);
+        respuestaSala(ubicacionenarray);
+    }
+
+    private static String nombreSala(){
+        System.out.println("Ingrese nombre de sala");
+        System.out.println("1- Volver al menu");
+        return sc.next();
+    }
+
+    private static void respuestaSala(int ub){
+        if(ub != -1){
+            String[] salainfo = listadeSalas.get(ub);
+            System.out.println("La sala " + salainfo[0] + " se encuentra en el edificio " + salainfo[2]
+                    + " en el piso " + salainfo[1]);
+
+            int edificioubicacion = ubicacionenArray(edificios,salainfo[2]);
+            if(edificioubicacion == -1){System.out.println("Sala sin edificio, error en json");}
+            direccionesaEdificio(edificioubicacion); // el +1 es necesario para que funcione
+        }
+        else{
+            System.out.println("Sala no encontrada.");
+            buscadordeSalas();
+        }
+    }
+
+
+    private static int ubicacionenArray(ArrayList<String[]> array,String nombre) {
+        for (int i = 0; i < array.size(); i++) {
+            String[] linea = array.get(i);
+            if (linea.length > 0 && linea[0].equals(nombre)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 }
