@@ -1,0 +1,40 @@
+{
+  "edificios": [
+    {
+      "nombre": "Pabellon E",
+      "ubicacion": [5.0, 10.0],
+      "salas": [
+        {
+          "nombre": "E-101",
+          "piso": 1
+        },
+        {
+          "nombre": "E-102",
+          "piso": 1
+        },
+        {
+          "nombre": "E-201",
+          "piso": 2
+        }
+      ]
+    },
+    {
+      "nombre": "Pabellon D",
+      "ubicacion": [2.0, 6.0],
+      "salas": [
+        {
+          "nombre": "D-101",
+          "piso": 1
+        },
+        {
+          "nombre": "D-102",
+          "piso": 1
+        },
+        {
+          "nombre": "D-201",
+          "piso": 2
+        }
+      ]
+    }
+  ]
+}

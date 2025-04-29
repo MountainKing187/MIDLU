@@ -1,13 +1,22 @@
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Main {
     private static final Scanner sc = new Scanner(System.in);
-    private static final int[] coordRa = {5,10};
-    private static final int[] coordE = {2,6};
-    private static int[] coordUsr = new int[2];
+    private static double[] coordUsr = new double[2];
 
+//  Listas para arreglar los array de edificios y salas
+    // el array edificos esta en orden {edificio, ubicacionX, ubicacionY}
+    private static final ArrayList<String[]>edificios = new ArrayList<>();
+    //el array lista de salas esta en orden {sala, piso, edificio, ubicacionX, ubicacionY}
+    private static final ArrayList<String[]>listadeSalas = new ArrayList<>();
 
     public static void main(String[] args) {
+        inicioPrograma();
         menu();
     }
 
@@ -19,6 +28,61 @@ public class Main {
             option = stringToint(sc.next());
             ejecutarOpcion(option);
         }while(option != 4);
+    }
+
+//  Se ingresa la ubicación inicial ya que se asume que el programa usara GPS para esto
+    private static void inicioPrograma(){
+        cargarData(Objects.requireNonNull(leerData()));
+        System.out.println("Bienvenido, ingrese sus coordenadas actuales");
+        actualizarCoordUsr();
+    }
+
+    private static JSONArray leerData(){
+        String nombrearchivo ="src/main/data.json";
+        try (BufferedReader br = new BufferedReader(new FileReader(nombrearchivo))) {
+            StringBuilder contenido = new StringBuilder();
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                contenido.append(linea);
+            }
+
+            JSONObject jsonObject = new JSONObject(contenido.toString());
+            return jsonObject.getJSONArray("edificios");
+
+        } catch (IOException e) {
+            System.out.println("Error al leer Base de Datos");
+            return null;
+        }
+    }
+
+//  Este metodo lee el archivo JSON y agrega la data a 2 ArrayList<String[]>
+//  uno para los edificios y otro para las salas.
+//  Utiliza 3 funciones, cargarData, leerData y cargarSalas
+    private static void cargarData(JSONArray jsarray){
+        for (int i = 0; i < jsarray.length(); i++) {
+            JSONObject edificioObj = jsarray.getJSONObject(i);
+
+            String edificio = edificioObj.getString("nombre");
+            JSONArray ubicacionArray = edificioObj.getJSONArray("ubicacion");
+            String ubicacionX = String.valueOf(ubicacionArray.getDouble(0));
+            String ubicacionY = String.valueOf(ubicacionArray.getDouble(1));
+
+            String[] datosEdificio = {edificio, ubicacionX, ubicacionY};
+            edificios.add(datosEdificio);
+            cargarSalas(edificioObj.getJSONArray("salas"),edificio, ubicacionX, ubicacionY);
+        }
+    }
+
+    private static void cargarSalas(JSONArray jsarray, String edificio, String ubicacionX,String ubicacionY){
+        for (Object obj : jsarray) {
+            JSONObject salaObj = (JSONObject) obj;
+
+            String sala = salaObj.getString("nombre");
+            String piso = String.valueOf(salaObj.getInt("piso"));
+
+            String[] datosSala = {sala, piso, edificio, ubicacionX, ubicacionY};
+            listadeSalas.add(datosSala);
+        }
     }
 
     private static void mostrarMenu() {
@@ -35,7 +99,7 @@ public class Main {
         switch(opcion){
             case 1 -> actualizarCoordUsr();
             case 2 -> buscarEdificio();
-            case 3 -> System.out.println("2234dsa");
+            case 3 -> buscadordeSalas();
             case 4 -> System.out.println("Adios");
             default -> System.out.println("Opcion invalida");
         }
@@ -50,7 +114,7 @@ public class Main {
         int coordY= stringToint(sc.next());
         System.out.println("Y: " + coordY);
 
-        coordUsr = new int[] {coordX, coordY};
+        coordUsr = new double[] {coordX, coordY};
     }
 
     public static void buscarEdificio() {
@@ -59,21 +123,35 @@ public class Main {
 
         if (!opcionValida(opcion)) {
             System.out.println("Opción inválida");
-            return;
+        }else{
+            direccionesaEdificio(opcion-1);
         }
-
-        int[] coordenadasEdificio = obtenerCoordenadasEdificio(opcion);
-        int[] diferenciaCoordenadas = calcularDiferenciaCoordenadas(coordUsr, coordenadasEdificio);
-
-        mostrarDireccionRelativa(diferenciaCoordenadas);
-        mostrarDistancia(diferenciaCoordenadas);
     }
 
     private static void mostrarOpcionesEdificios() {
         System.out.println("Edificios disponibles: ");
-        System.out.println("1- Pabellón Ra");
-        System.out.println("2- Pabellón E");
+
+        for (int i = 0; i < edificios.size(); i++) {
+            String[] sala = edificios.get(i);
+            if (sala.length > 0) {
+                System.out.println((i + 1) + "- " + sala[0]);
+            }
+        }
         System.out.println("Selecciona una opción:");
+    }
+
+    private static void direccionesaEdificio(int opcion){
+        String edificio = nombreEdificio(opcion);
+        double[] coordenadasEdificio = obtenerCoordenadasEdificio(opcion);
+        double[] diferenciaCoordenadas = calcularDiferenciaCoordenadas(coordUsr, coordenadasEdificio);
+
+        mostrarDireccionRelativa(diferenciaCoordenadas, edificio);
+        mostrarDistancia(diferenciaCoordenadas);
+    }
+
+    private static String nombreEdificio(int opcion){
+        String[] edificioSelectionado = edificios.get(opcion);
+        return edificioSelectionado[0];
     }
 
     private static int obtenerOpcionUsuario() {
@@ -81,63 +159,64 @@ public class Main {
     }
 
     private static boolean opcionValida(int opcion) {
-        return opcion == 1 || opcion == 2;
+        return opcion >= 1 && opcion <= edificios.size();
     }
 
-    private static int[] obtenerCoordenadasEdificio(int opcion) {
-        return opcion == 1 ? coordRa : coordE;
+    private static double[] obtenerCoordenadasEdificio(int opcion) {
+        String[] coordenadas = edificios.get(opcion);
+        return new double[]{Double.parseDouble(coordenadas[1]), Double.parseDouble(coordenadas[1])};
     }
 
-    private static int[] calcularDiferenciaCoordenadas(int[] origen, int[] destino) {
+    private static double[] calcularDiferenciaCoordenadas(double[] origen, double[] destino) {
         return tamanoEjes(origen, destino);
     }
 
-    private static void mostrarDireccionRelativa(int[] diferenciaCoordenadas) {
+    private static void mostrarDireccionRelativa(double[] diferenciaCoordenadas, String edificio) {
         double angulo = anguloEntrePuntos(diferenciaCoordenadas);
-        String direccion = determinarDireccion(angulo, diferenciaCoordenadas);
+        String direccion = determinarDireccion(angulo, diferenciaCoordenadas, edificio);
         System.out.println(direccion);
     }
 
-    private static String determinarDireccion(double angulo, int[] diferenciaCoordenadas) {
-        if (angulo == 90.0) return "El edificio está al norte de usted";
-        if (angulo == 0.0 && diferenciaCoordenadas[0] < 0) return "El edificio está al oeste de usted";
-        if (angulo == -90.0) return "El edificio está al sur de usted";
-        if (angulo == 0.0) return "El edificio está al este de usted";
+    private static String determinarDireccion(double angulo, double[] diferenciaCoordenadas, String edificio) {
+        if (angulo == 90.0) return "El "+ edificio +" está al norte de usted";
+        if (angulo == 0.0 && diferenciaCoordenadas[0] < 0) return "El "+ edificio +" está al oeste de usted";
+        if (angulo == -90.0) return "El "+ edificio +" está al sur de usted";
+        if (angulo == 0.0) return "El "+ edificio +" está al este de usted";
 
         String puntoCardinal = obtenerPuntoCardinal(angulo, diferenciaCoordenadas);
         double anguloMostrar = angulo > 0 ? angulo : Math.abs(angulo);
 
-        return String.format("El edificio está al %s de usted con un ángulo de %.1f°",
+        return String.format("El "+ edificio +" está al %s de usted con un ángulo de %.1f°",
                 puntoCardinal, anguloMostrar);
     }
 
-    private static String obtenerPuntoCardinal(double angulo, int[] diferenciaCoordenadas) {
+    private static String obtenerPuntoCardinal(double angulo, double[] diferenciaCoordenadas) {
         if (angulo < 90.0 && angulo > 0) {
             return diferenciaCoordenadas[1] < 0 ? "suroeste" : "noreste";
         }
         return diferenciaCoordenadas[1] < 0 ? "sureste" : "noroeste";
     }
 
-    private static void mostrarDistancia(int[] diferenciaCoordenadas) {
+    private static void mostrarDistancia(double[] diferenciaCoordenadas) {
         double distancia = distanciaEntreDosPuntos(diferenciaCoordenadas);
         System.out.printf("A una distancia de %.2f unidades%n", distancia);
     }
 
-    public static int[] tamanoEjes(int[] punto1, int[] punto2){
-        int[] distanciaEjes = new int[2];
+    public static double[] tamanoEjes(double[] punto1, double[] punto2){
+        double[] distanciaEjes = new double[2];
         for (int i = 0; i < 2; i++) {
             distanciaEjes[i] = punto2[i] - punto1[i];
         }
         return distanciaEjes;
     }
 
-    public static double anguloEntrePuntos(int[] distanciaEjes){
-        double anguloRadianes = Math.atan((double) distanciaEjes[1] / distanciaEjes[0]);
+    public static double anguloEntrePuntos(double[] distanciaEjes){
+        double anguloRadianes = Math.atan(distanciaEjes[1] / distanciaEjes[0]);
         double anguloGrados = Math.toDegrees(anguloRadianes);
         return Math.round(anguloGrados * 100.0) / 100.0;
     }
 
-    public static double distanciaEntreDosPuntos(int[] distanciaEjes){
+    public static double distanciaEntreDosPuntos(double[] distanciaEjes){
         double distancia = Math.sqrt(distanciaEjes[0] + distanciaEjes[1]);
         return Math.round(distancia * 100.0) / 100.0;
     }
@@ -162,4 +241,47 @@ public class Main {
             return false;
         }
     }
+
+// Funciones para Buscar la Sala
+    private static void buscadordeSalas(){
+        String nombre = nombreSala();
+        if(Objects.equals(nombre, "1"))menu();
+        int ubicacionenarray = ubicacionenArray(listadeSalas,nombre);
+        respuestaSala(ubicacionenarray);
+    }
+
+    private static String nombreSala(){
+        System.out.println("Ingrese nombre de sala");
+        System.out.println("1- Volver al menu");
+        return sc.next();
+    }
+
+    private static void respuestaSala(int ub){
+        if(ub != -1){
+            String[] salainfo = listadeSalas.get(ub);
+            System.out.println("La sala " + salainfo[0] + " se encuentra en el edificio " + salainfo[2]
+                    + " en el piso " + salainfo[1]);
+
+            int edificioubicacion = ubicacionenArray(edificios,salainfo[2]);
+            if(edificioubicacion == -1){System.out.println("Sala sin edificio, error en json");}
+            direccionesaEdificio(edificioubicacion); // el +1 es necesario para que funcione
+        }
+        else{
+            System.out.println("Sala no encontrada.");
+            System.out.println("Utiliza el formato que hay en intranet.");
+            buscadordeSalas();
+        }
+    }
+
+
+    private static int ubicacionenArray(ArrayList<String[]> array,String nombre) {
+        for (int i = 0; i < array.size(); i++) {
+            String[] linea = array.get(i);
+            if (linea.length > 0 && linea[0].equals(nombre)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 }
