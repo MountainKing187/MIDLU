@@ -274,7 +274,7 @@ public class Main {
     }
 
 
-    private static int ubicacionenArray(ArrayList<String[]> array,String nombre) {
+    protected static int ubicacionenArray(ArrayList<String[]> array,String nombre) {
         for (int i = 0; i < array.size(); i++) {
             String[] linea = array.get(i);
             if (linea.length > 0 && linea[0].equals(nombre)) {
