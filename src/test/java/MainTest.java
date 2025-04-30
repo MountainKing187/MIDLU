@@ -73,7 +73,7 @@ public class MainTest {
 
     @Test
     public void testPrimerNombreDeEdificioEsPabellonE() {
-        assertEquals("Pabellon E", getPrivateStatic("edificios").get(0)[0]);
+        assertEquals("Pabellon E", getPrivateStatic("edificios").getFirst()[0]);
     }
 
     @Test
@@ -83,12 +83,12 @@ public class MainTest {
 
     @Test
     public void testNombrePrimeraSalaEsE101() {
-        assertEquals("E-101", getPrivateStatic("listadeSalas").get(0)[0]);
+        assertEquals("E-101", getPrivateStatic("listadeSalas").getFirst()[0]);
     }
 
     @Test
     public void testSalaPerteneceAPabellonE() {
-        assertEquals("Pabellon E", getPrivateStatic("listadeSalas").get(0)[2]);
+        assertEquals("Pabellon E", getPrivateStatic("listadeSalas").getFirst()[2]);
     }
 
     @Test
